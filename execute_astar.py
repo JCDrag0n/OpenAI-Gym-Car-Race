@@ -2,6 +2,7 @@ import os
 import argparse
 import heapq
 import copy
+import statistics
 
 from collections import namedtuple
 
@@ -41,7 +42,7 @@ class Node:
                         True if either the car has finished or crashed, false otherwise
         """
         self.state = state  # Car state attributes listed above
-        
+
         # Initialize both f(n) and g(n) values to infinity. Finds the better
         # node using < operator. f(n) and g(n) are set in the algorithm after
         # exploration, so this doesn't matter.
@@ -110,13 +111,29 @@ def heuristic(node, goal):
     #     # Indexes 0 and 1 are the column and row coordinates respectively
     #     heuristic += (abs(goal.getState()[i][0] - node.getState()[i][0]) + abs(goal.getState()[i][1] - node.getState()[i][1])
     # return heuristic
-    return Utils.dist(goal, node.getState()["pos"])
+    measurements = []
+    differences = []
+    for sensor in node.getState()["sensors"]:
+        measurements.append(sensor[3])
+    # average /= len(sensor)
+    stddev = statistics.variance(measurements)
+    middle = [measurements[(len(measurements) - 1)], measurements[0]]
+    i = 0
+    j = len(measurements) - 1
+    while i < j:
+        differences.append(abs(measurements[i] - measurements[j]))
+        i += 1
+        j -= 1
 
+    # return Utils.dist(goal, node.getState()["pos"])*(statistics.mean(differences)) - measurements[(len(measurements) - 1)//2] - (len(node.getState()["reward_history"]))/(stddev + 1)
+    return 0.5*(Utils.dist(goal, node.getState()["pos"])+(statistics.mean(differences))) - 0.8*measurements[(len(measurements) - 1)//2]
+    # return Utils.dist(goal, node.getState()["pos"]) - len(node.getState()["reward_history"])
 
 def astar(env, actions):
     state = env.get_state()
     state["pos"] = tuple(state["pos"])
     state["reward_history"] = tuple(state["reward_history"])
+    state["sensors"] = tuple(tuple(sub) for sub in state["sensors"])
 
     start = Node(state)
     goal = env.finish_locs  # goal = Node(how are we going to get goal state?)
@@ -155,11 +172,12 @@ def astar(env, actions):
                     frontier.reverse()
                     frontier.sort()
                     heapq.heappush(frontier, child)  # push child into frontier
-    return solution        
+    return solution
 
 
 def generate_nodes(env, node, actions):
-    node.state["reward_history"] = list(node.state["reward_history"])           
+    node.state["reward_history"] = list(node.state["reward_history"])
+    node.state["sensors"] = list(list(sub) for sub in node.state["sensors"])
     env.set_state(node.state)
     children = []
     for action in actions:
@@ -168,11 +186,13 @@ def generate_nodes(env, node, actions):
             env.render()
         child = env.get_state()
         child["pos"] = tuple(child["pos"])
-        child["reward_history"] = tuple(child["reward_history"])        
+        child["reward_history"] = tuple(child["reward_history"])
+        child["sensors"] = tuple(tuple(sub) for sub in child["sensors"])
         if not child["crashed"]:
             children.append((Node(child), action))
         env.set_state(node.state)
-    node.state["reward_history"] = tuple(node.state["reward_history"])           
+    node.state["reward_history"] = tuple(node.state["reward_history"])
+    node.state["sensors"] = tuple(tuple(sub) for sub in node.state["sensors"])
     return children
 
 
@@ -199,23 +219,32 @@ def main():
     parser.add_argument("-reset", "--input if reset map", help="False- using default map, True - Create your own map", dest="ifreset", type=bool, default=False)
     args = parser.parse_args()
 
-    # Set up the environment using the values found in configs
-    env = Track()
-    car = Car()
-    env.add_car(car)
-    actions = car.get_actions()
-    obs = env.reset(new=False)
+    num_of_tracks = 1
 
-    solution_actions = astar(env, actions)
+    for i in range(num_of_tracks):
+        # Set up the environment using the values found in configs
+        #env = Track()
+        env = tracks[i]
+        car = Car()
+        env.add_car(car)
+        actions = car.get_actions()
+        obs = env.reset(new=False)
 
-    total_actions = []
-    obs = env.reset(new=False)
-    for action in solution_actions:        
-        for step in action:
-            obs, rewards, done, info = env.step(step)
-            env.render()
-        total_actions += action
-    
-    print(total_actions)
+        solution_actions = astar(env, actions)
+
+        total_actions = []
+        obs = env.reset(new=False)
+        for action in solution_actions:
+            for step in action:
+                obs, rewards, done, info = env.step(step)
+                env.render()
+            total_actions += action
+
+        outputFile = open("Output_" + i + ".txt", "w")  # open output file for writing
+        print(*total_actions, file=outputFile)
+
+        print(total_actions)
+
+
 if __name__ == "__main__":
     main()

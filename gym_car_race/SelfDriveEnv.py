@@ -79,7 +79,7 @@ class Track(gym.Env):
         self.start_locs = []    #start coordinates
         self.finish_locs = []   #finish coordinates
         self.total_steps = 0
-    
+
     def _calc_avg_pos(self, start_finish):
         """Calculates the average of either start_locs or finish_locs
         coordinates
@@ -417,7 +417,7 @@ class Car:
         self._calc_reward = config["reward"]["function"](self) if config["reward"]["function"] else self._default_step_reward
         self.reward_history = []
 
-        self.default_state = {"pos": None, 
+        self.default_state = {"pos": None,
                               "angle": self.config["car"]["angle"],
                               "speed": 0,
                               "rotation": 0,
@@ -565,8 +565,9 @@ class Car:
         self.reward_history = list.copy(state["reward_history"])
 
     def get_state(self):
-        state = {"pos": self.pos, 
+        state = {"pos": self.pos,
                  "angle": self.angle,
+                 "sensors": self.sensors,
                  "speed": self.speed,
                  "rotation": self.rotation,
                  "crashed": self.crashed,
@@ -575,13 +576,13 @@ class Car:
                  "reward_history": self.reward_history
                 }
         return state
-    
+
     def render(self, screen):
         rotated_image, new_rect = Utils.rotate_image(self.image, self.pos, self.angle)
         screen.blit(rotated_image, new_rect.topleft)
         for sensor in self.sensors:
             pygame.draw.circle(screen, self.sensor_color, (sensor[0], sensor[1]), 5)
-    
+
     def get_actions(self):
         """ acc = [self.ACCELERATE, self.REST, self.DECELERATE]
         rot = [self.ACCEL_LEFT, self.REST, self.ACCEL_RIGHT] """
@@ -598,7 +599,7 @@ class Utils:
     def dist(p0, p1):
         x0, y0 = p0
         x1, y1 = p1
-        return ((x0-x1)**2 + (y0-y1)**2)**.5 
+        return ((x0-x1)**2 + (y0-y1)**2)**.5
 
     @staticmethod
     def rotate(coord, angle, center):
