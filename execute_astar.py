@@ -224,7 +224,7 @@ def main():
     for i in range(num_of_tracks):
         # Set up the environment using the values found in configs
         #env = Track()
-        env = tracks[i]
+        env = generate_track()
         car = Car()
         env.add_car(car)
         actions = car.get_actions()

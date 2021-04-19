@@ -3,6 +3,7 @@
 import sys
 import pygame
 from math import *
+import random
 
 import numpy as np
 import gym
@@ -128,6 +129,34 @@ class Track(gym.Env):
                         self.track[row][col].start_finish = "start"
                     elif content[row][col] == 'f':
                         self.track[row][col].start_finish = "finish"
+
+    def generate_track(self):
+        for row in range(self._num_blocks_y):
+            for col in range(self._num_blocks_x):
+                self.track[row][col].mutable = False
+                self.track[row][col].active = True
+        # top right - self.track[1][self._num_blocks_x - 2]
+        # bottom right - self.track[self._num_blocks_y - 3][self._num_blocks_x - 2]
+        # top left - self.track[1][1]
+        # bottom left - self.track[self._num_blocks_y - 3][1]
+        finish_list = [(self._num_blocks_y - 3, self._num_blocks_x - 2), (self._num_blocks_y - 3, 1)]
+        start_list = [(1, 1), (1, self._num_blocks_x - 2)]
+        start_y, start_x = random.choice(start_list)
+        finish_y, finish_x = random.choice(finish_list)
+        for row in range(3):
+            for col in range(2):
+                self.track[start_y + row][start_x + col].start_finish = "start"
+                self.track[finish_y + row][finish_x + col].start_finish = "finish"
+        self.save_track()
+                #
+                # if content[row][col] == '0':
+                #     self.track[row][col].active = False
+                # else:
+                #     self.track[row][col].active = True
+                #     if content[row][col] == 's':
+                #         self.track[row][col].start_finish = "start"
+                #     elif content[row][col] == 'f':
+                #         self.track[row][col].start_finish = "finish"
 
     def save_track(self):
         with open(self.track_file, "a") as f:
