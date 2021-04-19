@@ -147,6 +147,7 @@ class Track(gym.Env):
             for col in range(2):
                 self.track[start_y + row][start_x + col].start_finish = "start"
                 self.track[finish_y + row][finish_x + col].start_finish = "finish"
+
         self.save_track()
                 #
                 # if content[row][col] == '0':
