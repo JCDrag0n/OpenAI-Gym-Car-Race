@@ -224,13 +224,14 @@ def main():
     for i in range(num_of_tracks):
         # Set up the environment using the values found in configs
         #env = Track()
-        env = generate_track()
+        env = Track()
+        env.generate_track()
         car = Car()
         env.add_car(car)
         actions = car.get_actions()
         obs = env.reset(new=False)
 
-        solution_actions = astar(env, actions)
+        solution_actions = astar(env, actio2ns)
 
         total_actions = []
         obs = env.reset(new=False)
