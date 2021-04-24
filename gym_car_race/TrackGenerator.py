@@ -80,19 +80,41 @@ class TrackEnv(Env):
         return self.curr == self.goal
 
 
+<<<<<<< Updated upstream
 def embiggen(actions, track):
     for i in range(len(path)):
         curr = path[i]
         if i == 0:
 
+=======
+def embiggen(path): 
+    final_track = path[-1]
+    for i in range(1, len(path)):
+        if i >= len(path) - 1:
+            continue
+        node = path[i]
+        L = (0, -1)
+        R = (0, 1)
+        U = (1, 0)
+        D = (-1, 0)
+        if (node.action == L or node.action == R):
+            final_track.state.track[node.state.curr[0] + 1][node.state.curr[1]] = "0"
+            final_track.state.track[node.state.curr[0] - 1][node.state.curr[1]] = "0"
+        if (node.action == U or node.action == D):
+            final_track.state.track[node.state.curr[0]][node.state.curr[1] + 1] = "0"
+            final_track.state.track[node.state.curr[0]][node.state.curr[1] - 1] = "0"
+
+    return final_track
+>>>>>>> Stashed changes
 
 
 def generate_track(env):
     track = TrackEnv(env._num_blocks_x, env._num_blocks_y)
     start_node = Node(None, track.state, 0, track.heuristic())
     path = run_astar(start_node, track)
-    embiggened = embiggen([node.action for node in path[0]], path[0][-1].state[1])
-    return path[0][-1].state[1]
+    return embiggen(path[0])
+    #embiggened = embiggen([node.action for node in path[0]], path[0][-1].state[1])
+    #return path[0][-1].state[1]
 
 """ if __name__ == "__main__": """
 
