@@ -80,12 +80,12 @@ class TrackEnv(Env):
         return self.curr == self.goal
 
 
-def embiggen(actions, track):    
-    for i in range(len(path)):        
+def embiggen(actions, track):
+    for i in range(len(path)):
         curr = path[i]
-        if i == 0: 
+        if i == 0:
 
-        
+
 
 def generate_track(env):
     track = TrackEnv(env._num_blocks_x, env._num_blocks_y)
