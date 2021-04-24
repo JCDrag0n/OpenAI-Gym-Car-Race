@@ -10,7 +10,7 @@ import gym
 from gym import spaces
 
 from gym_car_race.config import cfg
-from trackgenerator import TrackGenerator
+import gym_car_race.TrackGenerator as TrackGenerator
 
 
 class Track(gym.Env):
@@ -115,10 +115,11 @@ class Track(gym.Env):
         pygame.display.quit()
         self._screen = None
 
-    def load_track(self):
-        with open(self.track_file) as f:
-                content = f.readlines()
-        content = [x.strip().split() for x in content]
+    def load_track(self, content=None):
+        if not content:
+            with open(self.track_file) as f:
+                content = [x.strip().split() for x in f.readlines()]
+        
         for row in range(len(content)):
             for col in range(len(content[row])):
                 self.track[row][col].mutable = False
@@ -131,9 +132,9 @@ class Track(gym.Env):
                     elif content[row][col] == 'f':
                         self.track[row][col].start_finish = "finish"
 
+
     def generate_track(self):
-        TrackGenerator.generate_sf(self)
-        self.track = TrackGenerator.connect_track()
+        self.load_track(TrackGenerator.generate_track(self))
 
     def save_track(self):
         with open(self.track_file, "a") as f:
@@ -200,7 +201,7 @@ class Track(gym.Env):
         pygame.display.flip()
         self.handle_events()
 
-    def reset(self, new=False):
+    def reset(self, new=False, random=False):
         """OpenAI gym interface method for reseting the environment.
 
         Parameters:
@@ -210,7 +211,7 @@ class Track(gym.Env):
         Returns: () Observation from car sensors
         """
 
-        if new:
+        if new and not random:
             self.open_window()
             while self._screen:
                 self.render()
@@ -218,6 +219,8 @@ class Track(gym.Env):
                 for border in row:
                     border.mutable = False
             self.save_track()
+        elif random:
+            self.generate_track()
         else:
             self.load_track()
 

@@ -109,16 +109,15 @@ def run_astar(start_node, env):
 
     while not done:
 
-        # ...pop the node with the lowest f cost...
-        env.print_state(env.get_state())
-        print()
+        # ...pop the node with the lowest f cost...        
         parent = heapq.heappop(frontier)
-
+        
         # and expand it only if it is not a repeated state with a worse path
         # cost. Save the f cost if is better than a previously explored path to
         # the same state
+        
         if node_history.get(parent.hash, float("inf")) > parent.f:
-            node_history[parent.hash] = parent.f
+            node_history[parent.hash] = parent.f            
         else:
             continue
 
@@ -136,7 +135,7 @@ def run_astar(start_node, env):
 
         actions = env.get_actions()
         for action in actions:
-            env.step(action)
+            env.step(action)            
             heapq.heappush(frontier, Node(parent, env.get_state(), 1 + parent.g, env.heuristic(), action))
             num_nodes += 1
             env.set_state(parent.state)
