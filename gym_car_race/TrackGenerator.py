@@ -80,13 +80,6 @@ class TrackEnv(Env):
         return self.curr == self.goal
 
 
-<<<<<<< Updated upstream
-def embiggen(actions, track):
-    for i in range(len(path)):
-        curr = path[i]
-        if i == 0:
-
-=======
 def embiggen(path): 
     final_track = path[-1]
     for i in range(1, len(path)):
@@ -105,7 +98,6 @@ def embiggen(path):
             final_track.state.track[node.state.curr[0]][node.state.curr[1] - 1] = "0"
 
     return final_track
->>>>>>> Stashed changes
 
 
 def generate_track(env):
